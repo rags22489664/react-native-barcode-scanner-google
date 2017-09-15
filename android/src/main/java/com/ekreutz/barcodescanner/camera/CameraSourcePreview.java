@@ -82,6 +82,7 @@ public class CameraSourcePreview extends ViewGroup {
     private void startIfReady() throws IOException, SecurityException {
         if (mStartRequested && mSurfaceAvailable && mCameraSource != null) {
             mCameraSource.start(mSurfaceView.getHolder());
+            mCameraSource.doZoom(4.0f);
             mStartRequested = false;
         }
     }

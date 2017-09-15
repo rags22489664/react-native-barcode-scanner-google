@@ -12,6 +12,8 @@ import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.ekreutz.barcodescanner.camera.CameraSource;
@@ -54,6 +56,26 @@ public class BarcodeScannerView extends ViewGroup implements CameraSource.AutoFo
     private boolean mIsPaused = true;
 
     private int mBarcodeTypes = 0; // 0 for all supported types
+    private ScaleGestureDetector scaleGestureDetector;
+
+    private class ScaleListener implements ScaleGestureDetector.OnScaleGestureListener {
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            return false;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            Log.e("SCALE", String.valueOf(detector.getScaleFactor()));
+            mCameraSource.doZoom(detector.getScaleFactor());
+        }
+    }
 
     public BarcodeScannerView(Context context) {
         super(context);
@@ -85,7 +107,13 @@ public class BarcodeScannerView extends ViewGroup implements CameraSource.AutoFo
     public void init() {
         mPreview = new CameraSourcePreview(mContext, null);
         addView(mPreview);
-
+        scaleGestureDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return scaleGestureDetector.onTouchEvent(motionEvent);
+            }
+        });
         start();
     }
 
